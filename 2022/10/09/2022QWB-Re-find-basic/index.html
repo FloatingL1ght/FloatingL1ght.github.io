@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Eutop1a">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="2022强网杯re——find_basic首先查壳，该程序是一个32位ELF文件  进入main函数，可以看到大量的混淆，每个都是由pushf, pusha, mov, call, pop五个指令为一组进行，与虚拟机混淆十分类似  然后在第一个pushf处下断点，直接动态调试（因为就算F5了也没什么用，根本看不懂） 在第一次混淆中每处都F7步入，分析 进入第一个函数  主要会有下面两个函数  继续">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2022QWB Re find basic">
+<meta property="og:url" content="http://example.com/2022/10/09/2022QWB-Re-find-basic/index.html">
+<meta property="og:site_name" content="Eutop1aのblog">
+<meta property="og:description" content="2022强网杯re——find_basic首先查壳，该程序是一个32位ELF文件  进入main函数，可以看到大量的混淆，每个都是由pushf, pusha, mov, call, pop五个指令为一组进行，与虚拟机混淆十分类似  然后在第一个pushf处下断点，直接动态调试（因为就算F5了也没什么用，根本看不懂） 在第一次混淆中每处都F7步入，分析 进入第一个函数  主要会有下面两个函数  继续">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822163610119.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822163721787.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164218587.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164536372.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164719689.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164845831.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822165249779.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822165430354.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822165738927.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823105425373.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822170224743.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823105734413.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110215865.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110633629.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110706916.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110742596.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110914559.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823111245821.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823111459859.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823111923566.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112006254.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112055819.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112126731.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112310594.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112525811.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112930835.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823113140573.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823113444737.png">
+<meta property="og:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823113717462.png">
+<meta property="article:published_time" content="2022-10-09T07:14:46.000Z">
+<meta property="article:modified_time" content="2022-10-09T07:15:09.929Z">
+<meta property="article:author" content="Eutop1a">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822163610119.png">
+  
+  
+  
+  <title>2022QWB Re find basic - Eutop1aのblog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"YI3fe42GN0DkmGFOTVuFtTIo-gzGzoHsz","app_key":"ssTUMONqn6xV0dSTdhIiP6fV","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>FloatingL1ghtのblog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/backimg.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2022QWB Re find basic"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-09 15:14" pubdate>
+          October 9, 2022 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          105 mins
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2022QWB Re find basic</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="2022强网杯re——find-basic"><a href="#2022强网杯re——find-basic" class="headerlink" title="2022强网杯re——find_basic"></a>2022强网杯re——find_basic</h1><p>首先查壳，该程序是一个32位ELF文件</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822163610119.png" srcset="/img/loading.gif" lazyload alt="image-20220822163610119"></p>
+<p>进入main函数，可以看到大量的混淆，每个都是由pushf, pusha, mov, call, pop五个指令为一组进行，与虚拟机混淆十分类似</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822163721787.png" srcset="/img/loading.gif" lazyload alt="image-20220822163721787"></p>
+<p>然后在第一个pushf处下断点，直接动态调试（因为就算F5了也没什么用，根本看不懂）</p>
+<p>在第一次混淆中每处都F7步入，分析</p>
+<p>进入第一个函数</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164218587.png" srcset="/img/loading.gif" lazyload alt="image-20220822164218587"></p>
+<p>主要会有下面两个函数</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164536372.png" srcset="/img/loading.gif" lazyload alt="image-20220822164536372"></p>
+<p>继续F7分析，会发现第一个函数的功能就是将一个地址处的值压入EAX寄存器，再加一：</p>
+<p>第二个函数</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164719689.png" srcset="/img/loading.gif" lazyload alt="image-20220822164719689"></p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822164845831.png" srcset="/img/loading.gif" lazyload alt="image-20220822164845831"></p>
+<p>可以看出这里有一个循环，但是每一次左边的操作只有加一，所以直接在右边第一条指令下断点，F9</p>
+<p>然后F7直接返回上一个函数</p>
+<p>所以这两个函数都是没用的混淆</p>
+<p>返回之后继续单步步入，发现进行了一些比较后，进行了多次跳转，当c1 &#x3D;&#x3D; 3Fh时跳转到这里</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822165249779.png" srcset="/img/loading.gif" lazyload alt="image-20220822165249779"></p>
+<p>单步步入到这里</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822165430354.png" srcset="/img/loading.gif" lazyload alt="image-20220822165430354"></p>
+<p>然后步入，发现这些函数都是和前面那些函数形式上差不多的混淆操作，没什么用，只有最后一个函数是前面加一之后的值减一</p>
+<p>然后执行jmp跳转</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822165738927.png" srcset="/img/loading.gif" lazyload alt="image-20220822165738927"></p>
+<p>发现程序回到了原点，然后接下来可以继续再跟进下一个函数，发现进行的操作都是同样的，然后接下来不断按下F8步过，</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823105425373.png" srcset="/img/loading.gif" lazyload alt="image-20220823105425373"></p>
+<p>到这里不管怎么按F8都没用了，说明程序要求我们输入了</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220822170224743.png" srcset="/img/loading.gif" lazyload alt="image-20220822170224743"></p>
+<p>然后随便输入些什么，主要是方便接下来的跟踪，这里输入123456789，</p>
+<p>然后开始F7单步步入，进入到第一个有用代码块</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823105734413.png" srcset="/img/loading.gif" lazyload alt="image-20220823105734413"></p>
+<p>在这里，先将输入的内容保存到了eax中，然后再把它压入堆栈</p>
+<p>然后继续步入，到</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110215865.png" srcset="/img/loading.gif" lazyload alt="image-20220823110215865"></p>
+<p>进入分析这个函数</p>
+<p>内层有很多混淆，绝大多数都是没用的函数，但是跳转到有用的指令前都会进行一个cmp指令和jnz指令，成功跳转后的指令就是有用的指令</p>
+<p>进入到这里</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110633629.png" srcset="/img/loading.gif" lazyload alt="image-20220823110633629"></p>
+<p>这块的操作就是将我们输入的数据保存</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110706916.png" srcset="/img/loading.gif" lazyload alt="image-20220823110706916"></p>
+<p>继续步入，到这里，是第一个关键部位</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110742596.png" srcset="/img/loading.gif" lazyload alt="image-20220823110742596"></p>
+<p>将eax寄存器的内容乘以42B45h，而eax寄存器中保存的内容恰好就是输入的第一个值，在这里也可以看到，就是字符1对应的ASCII码</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823110914559.png" srcset="/img/loading.gif" lazyload alt="image-20220823110914559"></p>
+<p>再步入到下一个函数，这里的sub eax, 1A93D7Eh，也相当于是一种比较，如果两个数值相等，执行后ZF会被置为1，如果不相等会被置为0，运行后，ZF为0</p>
+<p>至于为什么eax寄存器的值到这一步没有变，可以仔细看前面的push和pop指令，eax寄存器的值在eax被使用之前先被压入栈中，然后在使用完后再出栈，保证了值不会被改变</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823111245821.png" srcset="/img/loading.gif" lazyload alt="image-20220823111245821"></p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823111459859.png" srcset="/img/loading.gif" lazyload alt="image-20220823111459859"></p>
+<p>就可以得到flag[0] * 42B45h &#x3D;&#x3D; 1A93D7Eh，</p>
+<p>然后接下来为了避免复杂的动调，使用IDA的tracing功能</p>
+<p>进入这个窗口，发现他什么都没有</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823111923566.png" srcset="/img/loading.gif" lazyload alt="image-20220823111923566"></p>
+<p>然后打开view——Toolbars——Tracing</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112006254.png" srcset="/img/loading.gif" lazyload alt="image-20220823112006254"></p>
+<p>然后打开Tracing options</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112055819.png" srcset="/img/loading.gif" lazyload alt="image-20220823112055819"></p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112126731.png" srcset="/img/loading.gif" lazyload alt="image-20220823112126731"></p>
+<p>不用修改数据，直接默认，点击OK</p>
+<p>然后点亮右上角的这个</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112310594.png" srcset="/img/loading.gif" lazyload alt="image-20220823112310594"></p>
+<p>然后下断点，F9运行即可，然后等待一会后，这里就会记录下来刚才所有的指令</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112525811.png" srcset="/img/loading.gif" lazyload alt="image-20220823112525811"></p>
+<p>然后将它复制到VScode中，然后直接搜索</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823112930835.png" srcset="/img/loading.gif" lazyload alt="image-20220823112930835"></p>
+<p>因为之前说过，真正的有用代码执行前都会执行cmp和jnz指令，只有cmp的被操作数和在进入混淆前给的字符相同时才会进行</p>
+<p>定位到这一块，然后分析</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823113140573.png" srcset="/img/loading.gif" lazyload alt="image-20220823113140573"></p>
+<p>根据之前的特征分析，这一步进行的是flag[1] * 3B10Fh</p>
+<p>然后进行相同的方法，下端点，F9（切记要在重新记录前清空Tracing界面）</p>
+<p>然后定位到这里</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823113444737.png" srcset="/img/loading.gif" lazyload alt="image-20220823113444737"></p>
+<p>分析出他的指令第一步是 flag[0] * 1E4E0h，然后add指令就是flag[0] * 1E4E0h + flag[1] * 3B10Fh</p>
+<p>然后故技重施</p>
+<p><img src="https://renovice-1311449499.cos.ap-chongqing.myqcloud.com/img/image-20220823113717462.png" srcset="/img/loading.gif" lazyload alt="image-20220823113717462"></p>
+<p>到这里发现，sub eax, 24FE394h，实际上就是flag[0] * 1E4E0h + flag[1] * 3B10Fh &#x3D;&#x3D; 24FE394h</p>
+<p>已经可以想到了，肯定是用到z3的方程组求解，</p>
+<p>接下来只需要重复这样的步骤，获取后面的数据，然后再用z3求解</p>
+<h2 id="EXP"><a href="#EXP" class="headerlink" title="EXP"></a>EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">flag = [BitVec(<span class="string">&#x27;flag[%d]&#x27;</span> % i, <span class="number">8</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0x1c</span>)]</span><br><span class="line"></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0x1c</span>):</span><br><span class="line">    solver.add(flag[i] &gt;= <span class="number">32</span>)</span><br><span class="line">    solver.add(flag[i] &lt;= <span class="number">127</span>)</span><br><span class="line"></span><br><span class="line">solver.add(flag[<span class="number">0</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;f&#x27;</span>))</span><br><span class="line">solver.add(flag[<span class="number">1</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;l&#x27;</span>))</span><br><span class="line">solver.add(flag[<span class="number">2</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;a&#x27;</span>))</span><br><span class="line">solver.add(flag[<span class="number">3</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;g&#x27;</span>))</span><br><span class="line">solver.add(flag[<span class="number">4</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;&#123;&#x27;</span>))</span><br><span class="line">solver.add(flag[-<span class="number">1</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;&#125;&#x27;</span>))</span><br><span class="line"></span><br><span class="line">solver.add(flag[<span class="number">0</span>] * <span class="number">0x42b45</span> - <span class="number">0x1a93d7e</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">1</span>] * <span class="number">0x3b10f</span> + flag[<span class="number">0</span>] * <span class="number">0x1e4e0</span> - <span class="number">0x24fe394</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">0</span>] * <span class="number">0x31fc4</span> + flag[<span class="number">1</span>] * <span class="number">0xfffdb038</span> + flag[<span class="number">2</span>] * <span class="number">0x1390f</span> - <span class="number">0xbb9e67</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">0</span>] * <span class="number">0x32494</span> + flag[<span class="number">3</span>] * <span class="number">0xfffe5a07</span> + flag[<span class="number">1</span>] * <span class="number">0xa4e6</span> + flag[<span class="number">2</span>] * <span class="number">0x6ba7</span> - <span class="number">0x1052718</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">1</span>] * <span class="number">0xfffe0c3f</span> + flag[<span class="number">2</span>] * <span class="number">0x43e32</span> + flag[<span class="number">0</span>] * <span class="number">0x3f49d</span> + flag[<span class="number">3</span>] * <span class="number">0xc094</span> + flag[<span class="number">4</span>] * <span class="number">0xfffb7eff</span> - <span class="number">0x7fb225</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">5</span>] * <span class="number">0x33e5b</span> + flag[<span class="number">1</span>] * <span class="number">0x157f8</span> + flag[<span class="number">4</span>] * <span class="number">0xd4eb</span> + flag[<span class="number">2</span>] * <span class="number">0xfffc9ad6</span> + flag[<span class="number">3</span>] * <span class="number">0x9c95</span> + flag[<span class="number">0</span>] * <span class="number">0xfffd8c2e</span> - <span class="number">0x6a31d</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">6</span>] * <span class="number">0x6d8c</span> + flag[<span class="number">4</span>] * <span class="number">0xfffedd66</span> + flag[<span class="number">5</span>] * <span class="number">0x46fd4</span> + flag[<span class="number">1</span>] * <span class="number">0xfffc79bb</span> + flag[<span class="number">3</span>] * <span class="number">0xfffbe7f5</span> + flag[<span class="number">2</span>] * <span class="number">0x14cde</span> + flag[<span class="number">0</span>] * <span class="number">0xfffc4acd</span> + <span class="number">0x3083b63</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">4</span>] * <span class="number">0x129fd</span> + flag[<span class="number">7</span>] * <span class="number">0x2a3cd</span> + flag[<span class="number">5</span>] * <span class="number">0x52a1</span> + flag[<span class="number">6</span>] * <span class="number">0x87de</span> + flag[<span class="number">3</span>] * <span class="number">0x357c1</span> + flag[<span class="number">0</span>] * <span class="number">0xfffbe625</span> + flag[<span class="number">1</span>] * <span class="number">0xfffec17b</span> + flag[<span class="number">2</span>] * <span class="number">0x8039</span> - <span class="number">0xd3b6ed</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">4</span>] * <span class="number">0xfffe590f</span> + flag[<span class="number">6</span>] * <span class="number">0xfffc6bb7</span> + flag[<span class="number">0</span>] * <span class="number">0x2aec8</span> + flag[<span class="number">7</span>] * <span class="number">0xfffd58b1</span> + flag[<span class="number">3</span>] * <span class="number">0xfffcf131</span> + flag[<span class="number">8</span>] * <span class="number">0xfffc0fae</span> + flag[<span class="number">1</span>] * <span class="number">0xfffcf46a</span> + flag[<span class="number">2</span>] * <span class="number">0xfffbbb98</span> + flag[<span class="number">5</span>] * <span class="number">0xfffc9913</span> + <span class="number">0x7a4d9d3</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">6</span>] * <span class="number">0x3cb6</span> + flag[<span class="number">5</span>] * <span class="number">0xfffc5201</span> + flag[<span class="number">9</span>] * <span class="number">0xfffdec99</span> + flag[<span class="number">8</span>] * <span class="number">0x195a8</span> + flag[<span class="number">4</span>] * <span class="number">0xfffbcea6</span> + flag[<span class="number">7</span>] * <span class="number">0xfffd4f63</span> + flag[<span class="number">0</span>] * <span class="number">0x3852e</span> + flag[<span class="number">3</span>] * <span class="number">0x36c09</span> + flag[<span class="number">2</span>] * <span class="number">0xfffdffc6</span> + flag[<span class="number">1</span>] * <span class="number">0xffffbb8f</span> + <span class="number">0x27b7033</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">8</span>] * <span class="number">0xfffb7a1c</span> + flag[<span class="number">10</span>] * <span class="number">0xffff35fe</span> + flag[<span class="number">4</span>] * <span class="number">0xfffe5693</span> + flag[<span class="number">3</span>] * <span class="number">0xfffdb9f4</span> + flag[<span class="number">5</span>] * <span class="number">0xbd38</span> + flag[<span class="number">1</span>] * <span class="number">0x25b89</span> + flag[<span class="number">2</span>] * <span class="number">0x3074d</span> + flag[<span class="number">7</span>] * <span class="number">0xfffe5f6f</span> + flag[<span class="number">9</span>] * <span class="number">0x1400e</span> + flag[<span class="number">0</span>] * <span class="number">0xfffcd14c</span> + flag[<span class="number">6</span>] * <span class="number">0x4036d</span> + <span class="number">0xa8256</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">7</span>] * <span class="number">0x2da7a</span> + flag[<span class="number">2</span>] * <span class="number">0xfffbfd56</span> + flag[<span class="number">9</span>] * <span class="number">0xffff0011</span> + flag[<span class="number">0</span>] * <span class="number">0xfffce077</span> + flag[<span class="number">3</span>] * <span class="number">0x34d5d</span> + flag[<span class="number">5</span>] * <span class="number">0xfffb8def</span> + flag[<span class="number">10</span>] * <span class="number">0xffff2d4e</span> + flag[<span class="number">4</span>] * <span class="number">0x237a3</span> + flag[<span class="number">1</span>] * <span class="number">0x386e1</span> + flag[<span class="number">6</span>] * <span class="number">0xfb89</span> + flag[<span class="number">8</span>] * <span class="number">0x2e485</span> + flag[<span class="number">11</span>] * <span class="number">0x42574</span> - <span class="number">0x24df62a</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">10</span>] * <span class="number">0x21c5e</span> + flag[<span class="number">1</span>] * <span class="number">0x32144</span> + flag[<span class="number">11</span>] * <span class="number">0x420e3</span> + flag[<span class="number">3</span>] * <span class="number">0x3f6d0</span> + flag[<span class="number">0</span>] * <span class="number">0x1a459</span> + flag[<span class="number">2</span>] * <span class="number">0xfffc900e</span> + flag[<span class="number">8</span>] * <span class="number">0x3fd03</span> + flag[<span class="number">7</span>] * <span class="number">0x43d16</span> + flag[<span class="number">5</span>] * <span class="number">0xfffe4105</span> + flag[<span class="number">6</span>] * <span class="number">0xfffd400a</span> + flag[<span class="number">9</span>] * <span class="number">0xffffc29b</span> + flag[<span class="number">4</span>] * <span class="number">0x2f9f0</span> + flag[<span class="number">12</span>] * <span class="number">0x19432</span> - <span class="number">0x6f9b293</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">1</span>] * <span class="number">0xfffca694</span> + flag[<span class="number">0</span>] * <span class="number">0xfffce151</span> + flag[<span class="number">9</span>] * <span class="number">0x30418</span> + flag[<span class="number">11</span>] * <span class="number">0x2f6aa</span> + flag[<span class="number">4</span>] * <span class="number">0x1b619</span> + flag[<span class="number">8</span>] * <span class="number">0x22e4</span> + flag[<span class="number">7</span>] * <span class="number">0xfffe1384</span> + flag[<span class="number">10</span>] * <span class="number">0xffffa664</span> + flag[<span class="number">3</span>] * <span class="number">0x13e07</span> + flag[<span class="number">2</span>] * <span class="number">0xfffc46de</span> + flag[<span class="number">5</span>] * <span class="number">0x79d6</span> + flag[<span class="number">12</span>] * <span class="number">0x4372b</span> + flag[<span class="number">13</span>] * <span class="number">0x3d1d</span> + flag[<span class="number">6</span>] * <span class="number">0x4d41</span> - <span class="number">0x176513c</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">7</span>] * <span class="number">0x29b04</span> + flag[<span class="number">3</span>] * <span class="number">0xfffd2684</span> + flag[<span class="number">2</span>] * <span class="number">0xfffd9a2f</span> + flag[<span class="number">10</span>] * <span class="number">0xfffd79fc</span> + flag[<span class="number">13</span>] * <span class="number">0x2594e</span> + flag[<span class="number">12</span>] * <span class="number">0x41c45</span> + flag[<span class="number">6</span>] * <span class="number">0xfffc9c57</span> + flag[<span class="number">5</span>] * <span class="number">0xfffc5f95</span> + flag[<span class="number">11</span>] * <span class="number">0xfffec65c</span> + flag[<span class="number">14</span>] * <span class="number">0xffffb642</span> + flag[<span class="number">1</span>] * <span class="number">0xfffcb527</span> + flag[<span class="number">0</span>] * <span class="number">0x2792e</span> + flag[<span class="number">4</span>] * <span class="number">0xfffe1bb7</span> + flag[<span class="number">8</span>] * <span class="number">0x445a1</span> + flag[<span class="number">9</span>] * <span class="number">0xfffd25cc</span> + <span class="number">0x5338cd6</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">14</span>] * <span class="number">0xfffd399c</span> + flag[<span class="number">3</span>] * <span class="number">0xffff3edb</span> + flag[<span class="number">11</span>] * <span class="number">0x26b94</span> + flag[<span class="number">13</span>] * <span class="number">0xfffcee81</span> + flag[<span class="number">4</span>] * <span class="number">0xfffefe93</span> + flag[<span class="number">5</span>] * <span class="number">0xfffcdfa4</span> + flag[<span class="number">6</span>] * <span class="number">0xfffe2a42</span> + flag[<span class="number">0</span>] * <span class="number">0x10ba4</span> + flag[<span class="number">10</span>] * <span class="number">0x38e1d</span> + flag[<span class="number">12</span>] * <span class="number">0x14c1e</span> + flag[<span class="number">7</span>] * <span class="number">0xffffce4a</span> + flag[<span class="number">8</span>] * <span class="number">0xfffd2a4b</span> + flag[<span class="number">9</span>] * <span class="number">0x41fc</span> + flag[<span class="number">1</span>] * <span class="number">0xfffedbac</span> + flag[<span class="number">2</span>] * <span class="number">0xfffeab6a</span> + flag[<span class="number">15</span>] * <span class="number">0xfffe4e59</span> + <span class="number">0x299ff72</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">14</span>] * <span class="number">0xfffdc67b</span> + flag[<span class="number">1</span>] * <span class="number">0xffffb1fc</span> + flag[<span class="number">12</span>] * <span class="number">0xffff59be</span> + flag[<span class="number">8</span>] * <span class="number">0x3684</span> + flag[<span class="number">5</span>] * <span class="number">0x202c2</span> + flag[<span class="number">10</span>] * <span class="number">0x2e43</span> + flag[<span class="number">6</span>] * <span class="number">0xffff3a46</span> + flag[<span class="number">7</span>] * <span class="number">0x6a23</span> + flag[<span class="number">2</span>] * <span class="number">0xebfb</span> + flag[<span class="number">0</span>] * <span class="number">0xfffbb78a</span> + flag[<span class="number">15</span>] * <span class="number">0xd44a</span> + flag[<span class="number">13</span>] * <span class="number">0x385eb</span> + flag[<span class="number">11</span>] * <span class="number">0xfffee046</span> + flag[<span class="number">9</span>] * <span class="number">0xfffeb282</span> + flag[<span class="number">4</span>] * <span class="number">0xfffde639</span> + flag[<span class="number">3</span>] * <span class="number">0xfffd6738</span> + flag[<span class="number">16</span>] * <span class="number">0xffff1aa3</span> + <span class="number">0x4728350</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">1</span>] * <span class="number">0x28c9c</span> + flag[<span class="number">4</span>] * <span class="number">0xfffdc4ae</span> + flag[<span class="number">3</span>] * <span class="number">0x278ad</span> + flag[<span class="number">17</span>] * <span class="number">0x326ca</span> + flag[<span class="number">7</span>] * <span class="number">0xfffd423d</span> + flag[<span class="number">15</span>] * <span class="number">0xfffc96fc</span> + flag[<span class="number">10</span>] * <span class="number">0xfffeeb1a</span> + flag[<span class="number">9</span>] * <span class="number">0xfffc2ee0</span> + flag[<span class="number">5</span>] * <span class="number">0x106be</span> + flag[<span class="number">6</span>] * <span class="number">0xffff5d67</span> + flag[<span class="number">8</span>] * <span class="number">0x27</span> + flag[<span class="number">11</span>] * <span class="number">0xfffbc3b6</span> + flag[<span class="number">12</span>] * <span class="number">0xfffd163c</span> + flag[<span class="number">13</span>] * <span class="number">0xfffb9b47</span> + flag[<span class="number">2</span>] * <span class="number">0x1e6ed</span> + flag[<span class="number">0</span>] * <span class="number">0xfffc6c6f</span> + flag[<span class="number">16</span>] * <span class="number">0x3b32b</span> + flag[<span class="number">14</span>] * <span class="number">0x2feea</span> + <span class="number">0x48d1119</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">3</span>] * <span class="number">0xfffc2bb3</span> + flag[<span class="number">0</span>] * <span class="number">0xfffce76f</span> + flag[<span class="number">4</span>] * <span class="number">0xfffca692</span> + flag[<span class="number">1</span>] * <span class="number">0xfffdf4bc</span> + flag[<span class="number">14</span>] * <span class="number">0x192f9</span> + flag[<span class="number">17</span>] * <span class="number">0xfffe5a1e</span> + flag[<span class="number">15</span>] * <span class="number">0xfffed4f3</span> + flag[<span class="number">7</span>] * <span class="number">0xffff94f8</span> + flag[<span class="number">6</span>] * <span class="number">0xfffc717e</span> + flag[<span class="number">9</span>] * <span class="number">0xfffed29b</span> + flag[<span class="number">10</span>] * <span class="number">0xfffd28d9</span> + flag[<span class="number">8</span>] * <span class="number">0x218df</span> + flag[<span class="number">2</span>] * <span class="number">0x28e00</span> + flag[<span class="number">12</span>] * <span class="number">0xfffdd0af</span> + flag[<span class="number">13</span>] * <span class="number">0x25d22</span> + flag[<span class="number">11</span>] * <span class="number">0x42ebb</span> + flag[<span class="number">5</span>] * <span class="number">0xffff1382</span> + flag[<span class="number">18</span>] * <span class="number">0x7404</span> + flag[<span class="number">16</span>] * <span class="number">0xfffe2dff</span> + <span class="number">0x60245a5</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">5</span>] * <span class="number">0x21061</span> + flag[<span class="number">0</span>] * <span class="number">0xfffbcb01</span> + flag[<span class="number">19</span>] * <span class="number">0xffff7442</span> + flag[<span class="number">3</span>] * <span class="number">0x24568</span> + flag[<span class="number">6</span>] * <span class="number">0x1b201</span> + flag[<span class="number">13</span>] * <span class="number">0x2d232</span> + flag[<span class="number">14</span>] * <span class="number">0x13777</span> + flag[<span class="number">7</span>] * <span class="number">0xfffee013</span> + flag[<span class="number">8</span>] * <span class="number">0xfffc7505</span> + flag[<span class="number">2</span>] * <span class="number">0x264ed</span> + flag[<span class="number">1</span>] * <span class="number">0x33b4f</span> + flag[<span class="number">11</span>] * <span class="number">0x286d8</span> + flag[<span class="number">17</span>] * <span class="number">0x33e8b</span> + flag[<span class="number">12</span>] * <span class="number">0x21529</span> + flag[<span class="number">16</span>] * <span class="number">0xfffb7c1a</span> + flag[<span class="number">18</span>] * <span class="number">0xfffd07a3</span> + flag[<span class="number">10</span>] * <span class="number">0xffff8453</span> + flag[<span class="number">4</span>] * <span class="number">0x9754</span> + flag[<span class="number">9</span>] * <span class="number">0xfffd603d</span> + flag[<span class="number">15</span>] * <span class="number">0xfffdd85b</span> - <span class="number">0x254e142</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">0</span>] * <span class="number">0xfffe206e</span> + flag[<span class="number">12</span>] * <span class="number">0x2f048</span> + flag[<span class="number">8</span>] * <span class="number">0xfffc19fa</span> + flag[<span class="number">4</span>] &lt;&lt; <span class="number">6</span> + flag[<span class="number">7</span>] * <span class="number">0x370d</span> + flag[<span class="number">13</span>] * <span class="number">0xfffd9c2f</span> + flag[<span class="number">6</span>] * <span class="number">0xfffdb413</span> + flag[<span class="number">20</span>] * <span class="number">0x30e0a</span> + flag[<span class="number">18</span>] * <span class="number">0xfffe07f8</span> + flag[<span class="number">9</span>] * <span class="number">0xfffedfd5</span> + flag[<span class="number">10</span>] * <span class="number">0xfffee6f6</span> + flag[<span class="number">3</span>] * <span class="number">0x46247</span> + flag[<span class="number">1</span>] * <span class="number">0x2b8ed</span> + flag[<span class="number">16</span>] * <span class="number">0x2d291</span> + flag[<span class="number">5</span>] * <span class="number">0xfffdc54d</span> + flag[<span class="number">15</span>] * <span class="number">0xfffc5b55</span> + flag[<span class="number">14</span>] * <span class="number">0xfffb8061</span> + flag[<span class="number">11</span>] * <span class="number">0x43913</span> + flag[<span class="number">2</span>] * <span class="number">0xffffe191</span> + flag[<span class="number">17</span>] * <span class="number">0xfffd276e</span> + flag[<span class="number">19</span>] * <span class="number">0xfffe5841</span> + <span class="number">0xce53e7</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">20</span>] * <span class="number">0xfffed971</span> + flag[<span class="number">21</span>] * <span class="number">0x46741</span> + flag[<span class="number">18</span>] * <span class="number">0xfffbac8c</span> + flag[<span class="number">1</span>] * <span class="number">0xfffeb4e7</span> + flag[<span class="number">13</span>] * <span class="number">0x1026b</span> + flag[<span class="number">12</span>] * <span class="number">0xfffe7d86</span> + flag[<span class="number">6</span>] * <span class="number">0xfffd5fec</span> + flag[<span class="number">3</span>] * <span class="number">0x48ddb</span> + flag[<span class="number">16</span>] * <span class="number">0xfffc6bc1</span> + flag[<span class="number">17</span>] * <span class="number">0x37ece</span> + flag[<span class="number">8</span>] * <span class="number">0x41105</span> + flag[<span class="number">2</span>] * <span class="number">0xfffe6667</span> + flag[<span class="number">19</span>] * <span class="number">0xfffe75b2</span> + flag[<span class="number">4</span>] * <span class="number">0x61b0</span> + flag[<span class="number">14</span>] * <span class="number">0xffffd602</span> + flag[<span class="number">11</span>] * <span class="number">0xfffbce29</span> + flag[<span class="number">0</span>] * <span class="number">0xffff07d7</span> + flag[<span class="number">5</span>] * <span class="number">0x34c8e</span> + flag[<span class="number">15</span>] * <span class="number">0x32996</span> + flag[<span class="number">10</span>] * <span class="number">0x49530</span> + flag[<span class="number">7</span>] * <span class="number">0x33822</span> + flag[<span class="number">9</span>] * <span class="number">0xfffce161</span> + <span class="number">0x42666b</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">8</span>] * <span class="number">0xfffe06e8</span> + flag[<span class="number">12</span>] * <span class="number">0xfffd0441</span> + flag[<span class="number">2</span>] * <span class="number">0x16357</span> + flag[<span class="number">3</span>] * <span class="number">0x1d95f</span> + flag[<span class="number">22</span>] * <span class="number">0xffff89d3</span> + flag[<span class="number">1</span>] * <span class="number">0xfffba022</span> + flag[<span class="number">16</span>] * <span class="number">0x46180</span> + flag[<span class="number">4</span>] * <span class="number">0xffff4240</span> + flag[<span class="number">5</span>] * <span class="number">0x199c5</span> + flag[<span class="number">21</span>] * <span class="number">0xffff442c</span> + flag[<span class="number">17</span>] * <span class="number">0xfffc2fac</span> + flag[<span class="number">10</span>] * <span class="number">0x32600</span> + flag[<span class="number">19</span>] * <span class="number">0x1d03a</span> + flag[<span class="number">9</span>] * <span class="number">0x19435</span> + flag[<span class="number">15</span>] * <span class="number">0xfffd1667</span> + flag[<span class="number">18</span>] * <span class="number">0x35d1d</span> + flag[<span class="number">0</span>] * <span class="number">0x96c4</span> + flag[<span class="number">11</span>] * <span class="number">0x2fa24</span> + flag[<span class="number">7</span>] * <span class="number">0xb20c</span> + flag[<span class="number">6</span>] * <span class="number">0xebee</span> + flag[<span class="number">20</span>] * <span class="number">0x428a6</span> + flag[<span class="number">14</span>] * <span class="number">0xfffceb8a</span> + flag[<span class="number">13</span>] * <span class="number">0x22784</span> - <span class="number">0x3604a63</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">0</span>] * <span class="number">0x1e3e2</span> + flag[<span class="number">9</span>] * <span class="number">0x1cfb9</span> + flag[<span class="number">6</span>] * <span class="number">0xc3f7</span> + flag[<span class="number">10</span>] * <span class="number">0x94cd</span> + flag[<span class="number">22</span>] * <span class="number">0xfffc7fd0</span> + flag[<span class="number">2</span>] * <span class="number">0x21165</span> + flag[<span class="number">23</span>] * <span class="number">0xfffcfb41</span> + flag[<span class="number">14</span>] * <span class="number">0xffff819d</span> + flag[<span class="number">5</span>] * <span class="number">0xfffbeb76</span> + flag[<span class="number">1</span>] * <span class="number">0x16751</span> + flag[<span class="number">19</span>] * <span class="number">0xe1a</span> + flag[<span class="number">17</span>] * <span class="number">0x238a0</span> + flag[<span class="number">12</span>] * <span class="number">0x28f99</span> + flag[<span class="number">8</span>] * <span class="number">0x45bc</span> + flag[<span class="number">20</span>] * <span class="number">0xffffcb18</span> + flag[<span class="number">15</span>] * <span class="number">0x32d58</span> + flag[<span class="number">11</span>] * <span class="number">0xffffe4bc</span> + flag[<span class="number">16</span>] * <span class="number">0xfffeea95</span> + flag[<span class="number">13</span>] * <span class="number">0x44f3a</span> + flag[<span class="number">18</span>] * <span class="number">0xb047</span> + flag[<span class="number">7</span>] * <span class="number">0xfffcfc36</span> + flag[<span class="number">21</span>] * <span class="number">0x1719</span> + flag[<span class="number">4</span>] * <span class="number">0x1b011</span> + flag[<span class="number">3</span>] * <span class="number">0xfffea265</span> - <span class="number">0x2918269</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">15</span>] * <span class="number">0xfffbf307</span> + flag[<span class="number">8</span>] * <span class="number">0xffff2847</span> + flag[<span class="number">6</span>] * <span class="number">0xfffcfd31</span> + flag[<span class="number">2</span>] * <span class="number">0x40f96</span> + flag[<span class="number">22</span>] * <span class="number">0x2b265</span> + flag[<span class="number">5</span>] * <span class="number">0xfffc7802</span> + flag[<span class="number">3</span>] * <span class="number">0x1b103</span> + flag[<span class="number">4</span>] * <span class="number">0x42452</span> + flag[<span class="number">14</span>] * <span class="number">0x3c5d</span> + flag[<span class="number">1</span>] * <span class="number">0x15b55</span> + flag[<span class="number">9</span>] * <span class="number">0xfffeb722</span> + flag[<span class="number">13</span>] * <span class="number">0x1d9a9</span> + flag[<span class="number">23</span>] * <span class="number">0x28df</span> + flag[<span class="number">12</span>] * <span class="number">0xfffc89eb</span> + flag[<span class="number">10</span>] * <span class="number">0xfffe1221</span> + flag[<span class="number">7</span>] * <span class="number">0x4462a</span> + flag[<span class="number">19</span>] * <span class="number">0x23353</span> + flag[<span class="number">21</span>] * <span class="number">0x3c514</span> + flag[<span class="number">0</span>] * <span class="number">0x316a4</span> + flag[<span class="number">11</span>] * <span class="number">0x176e1</span> + flag[<span class="number">20</span>] * <span class="number">0xcf0e</span> + flag[<span class="number">18</span>] * <span class="number">0x46b55</span> + flag[<span class="number">24</span>] * <span class="number">0xffffbcc1</span> + flag[<span class="number">17</span>] * <span class="number">0xf2a7</span> + flag[<span class="number">16</span>] * <span class="number">0x1d33c</span> - <span class="number">0x5df35b6</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">3</span>] * <span class="number">0xfffbf624</span> + flag[<span class="number">22</span>] * <span class="number">0xfffec87a</span> + flag[<span class="number">2</span>] * <span class="number">0x19aaa</span> + flag[<span class="number">23</span>] * <span class="number">0x5f14</span> + flag[<span class="number">20</span>] * <span class="number">0xfffcfc43</span> + flag[<span class="number">16</span>] * <span class="number">0xfffbe879</span> + flag[<span class="number">15</span>] * <span class="number">0xfffdfc92</span> + flag[<span class="number">14</span>] * <span class="number">0xffffc258</span> + flag[<span class="number">0</span>] * <span class="number">0xfffd02fd</span> + flag[<span class="number">5</span>] * <span class="number">0x12560</span> + flag[<span class="number">13</span>] * <span class="number">0xae46</span> + flag[<span class="number">7</span>] * <span class="number">0xfffeb6f5</span> + flag[<span class="number">12</span>] * <span class="number">0x30c11</span> + flag[<span class="number">17</span>] * <span class="number">0xfffcb4ae</span> + flag[<span class="number">24</span>] * <span class="number">0x2a00a</span> + flag[<span class="number">6</span>] * <span class="number">0xfffc76de</span> + flag[<span class="number">21</span>] * <span class="number">0x4162</span> + flag[<span class="number">10</span>] * <span class="number">0xfffe95b2</span> + flag[<span class="number">25</span>] * <span class="number">0xfffe60e7</span> + flag[<span class="number">19</span>] * <span class="number">0xffff908d</span> + flag[<span class="number">4</span>] * <span class="number">0xfffb7f42</span> + flag[<span class="number">11</span>] * <span class="number">0x1c31</span> + flag[<span class="number">1</span>] * <span class="number">0xffff900c</span> + flag[<span class="number">8</span>] * <span class="number">0x2ad6e</span> + flag[<span class="number">9</span>] * <span class="number">0xfffd7c6d</span> + flag[<span class="number">18</span>] * <span class="number">0xc499</span> + <span class="number">0x83646cd</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">12</span>] * <span class="number">0x26b02</span> + flag[<span class="number">3</span>] * <span class="number">0xfffb92e5</span> + flag[<span class="number">17</span>] * <span class="number">0x30dd1</span> + flag[<span class="number">18</span>] * <span class="number">0xfffe4c7b</span> + flag[<span class="number">0</span>] * <span class="number">0xffff0433</span> + flag[<span class="number">1</span>] * <span class="number">0x276b1</span> + flag[<span class="number">9</span>] * <span class="number">0xfffc241e</span> + flag[<span class="number">5</span>] * <span class="number">0xfffe3fdc</span> + flag[<span class="number">8</span>] * <span class="number">0xfffee787</span> + flag[<span class="number">10</span>] * <span class="number">0x230c</span> + flag[<span class="number">21</span>] * <span class="number">0xfffd53f8</span> + flag[<span class="number">4</span>] * <span class="number">0xfffc108c</span> + flag[<span class="number">14</span>] * <span class="number">0xffffbac1</span> + flag[<span class="number">26</span>] * <span class="number">0xffff0bdb</span> + flag[<span class="number">15</span>] * <span class="number">0xfffbc5e2</span> + flag[<span class="number">19</span>] * <span class="number">0xa1f6</span> + flag[<span class="number">16</span>] * <span class="number">0x1e758</span> + flag[<span class="number">22</span>] * <span class="number">0x1725f</span> + flag[<span class="number">23</span>] * <span class="number">0x3387e</span> + flag[<span class="number">20</span>] * <span class="number">0x87b</span> + flag[<span class="number">2</span>] * <span class="number">0xfffd8475</span> + flag[<span class="number">13</span>] * <span class="number">0x3776a</span> + flag[<span class="number">24</span>] * <span class="number">0xffff4515</span> + flag[<span class="number">11</span>] * <span class="number">0x1a454</span> + flag[<span class="number">6</span>] * <span class="number">0xfffbf3a1</span> + flag[<span class="number">25</span>] * <span class="number">0x25174</span> + flag[<span class="number">7</span>] * <span class="number">0xfffbccc2</span> + <span class="number">0x52dfb3f</span> == <span class="number">0</span>)</span><br><span class="line">solver.add(flag[<span class="number">25</span>] * <span class="number">0x2f139</span> + flag[<span class="number">20</span>] * <span class="number">0x21b53</span> + flag[<span class="number">15</span>] * <span class="number">0x2ad74</span> + flag[<span class="number">9</span>] * <span class="number">0xfffba19b</span> + flag[<span class="number">16</span>] * <span class="number">0x1ac4e</span> + flag[<span class="number">27</span>] * <span class="number">0x2208e</span> + flag[<span class="number">13</span>] * <span class="number">0xfffdd738</span> + flag[<span class="number">11</span>] * <span class="number">0xfffdfb9f</span> + flag[<span class="number">8</span>] * <span class="number">0xfffe4b65</span> + flag[<span class="number">5</span>] * <span class="number">0x10937</span> + flag[<span class="number">10</span>] * <span class="number">0xfffbfdf3</span> + flag[<span class="number">12</span>] * <span class="number">0x3cc1a</span> + flag[<span class="number">23</span>] * <span class="number">0xfffe93ee</span> + flag[<span class="number">2</span>] * <span class="number">0xfffe3b8a</span> + flag[<span class="number">14</span>] * <span class="number">0xfffe792c</span> + flag[<span class="number">6</span>] * <span class="number">0x3e9ff</span> + flag[<span class="number">21</span>] * <span class="number">0x128e6</span> + flag[<span class="number">3</span>] * <span class="number">0x574b</span> + flag[<span class="number">24</span>] * <span class="number">0x16707</span> + flag[<span class="number">19</span>] * <span class="number">0x3fe4c</span> + flag[<span class="number">17</span>] * <span class="number">0xfffed658</span> + flag[<span class="number">7</span>] * <span class="number">0x3cc8c</span> + flag[<span class="number">22</span>] * <span class="number">0x458b4</span> + flag[<span class="number">1</span>] * <span class="number">0xfffd74d0</span> + flag[<span class="number">18</span>] * <span class="number">0x22e02</span> + flag[<span class="number">4</span>] * <span class="number">0xffff098d</span> + flag[<span class="number">0</span>] * <span class="number">0x30b99</span> + flag[<span class="number">26</span>] * <span class="number">0xfffba5e9</span> - <span class="number">0x38186f4</span> == <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">flag_str = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    m = solver.model()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0x1c</span>):</span><br><span class="line">        flag_str += <span class="built_in">chr</span>(m[flag[i]].as_long())</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(flag_str)</span><br><span class="line"></span><br><span class="line"><span class="comment">#flag&#123;U_90t_th3_8451c_53cre7&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>这种单步调试的方法很慢而且容易出错，后面看wp时看到了一个解决方法，直接写python脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> idaapi <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ida_ua <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> keystone <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> capstone <span class="keyword">import</span> *</span><br><span class="line">ks = Ks(KS_ARCH_X86, KS_MODE_32)</span><br><span class="line">cs = Cs(CS_ARCH_X86, CS_MODE_32)</span><br><span class="line">insn = insn_t()</span><br><span class="line">b = <span class="built_in">bytearray</span>()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dis</span>(<span class="params">bytecode, address</span>):</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> cs.disasm(bytecode, address):</span><br><span class="line">        res = i.mnemonic + <span class="string">&#x27; &#x27;</span> + i.op_str</span><br><span class="line">        <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_valid_code</span>(<span class="params">addr</span>):</span><br><span class="line">    <span class="keyword">global</span> b</span><br><span class="line">    func_ea = addr</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        s = GetDisasm(func_ea) <span class="comment"># 获取当前指令</span></span><br><span class="line">        <span class="keyword">if</span> s == <span class="string">&#x27;pushf&#x27;</span>: <span class="comment"># 获取dispatcher结果</span></span><br><span class="line">            <span class="comment"># pushf -&gt; pusha -&gt; mov -&gt; call -&gt; pop</span></span><br><span class="line">            l = decode_insn(insn, func_ea)</span><br><span class="line">            func_ea += l <span class="comment"># jmp pushf</span></span><br><span class="line">            l = decode_insn(insn, func_ea)</span><br><span class="line">            func_ea += l <span class="comment"># jmp pusha</span></span><br><span class="line">            <span class="comment"># mov</span></span><br><span class="line">            opcode = get_operand_value(func_ea, <span class="number">1</span>)</span><br><span class="line">            reg = get_operand_value(func_ea, <span class="number">0</span>)</span><br><span class="line">            l = decode_insn(insn, func_ea)</span><br><span class="line">            func_ea += l <span class="comment"># jmp mov</span></span><br><span class="line">            call_func_ea = get_operand_value(func_ea, <span class="number">0</span>)</span><br><span class="line">            l = decode_insn(insn, func_ea)</span><br><span class="line">            func_ea += l <span class="comment"># jmp call</span></span><br><span class="line">            l = decode_insn(insn, func_ea)</span><br><span class="line">            func_ea += l <span class="comment"># jmp pop</span></span><br><span class="line">            <span class="comment">#print(hex(call_func_ea))</span></span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>: <span class="comment"># 找到对应分支</span></span><br><span class="line">               s = GetDisasm(call_func_ea)</span><br><span class="line">               <span class="keyword">if</span> s[:<span class="number">3</span>] == <span class="string">&#x27;cmp&#x27;</span>:</span><br><span class="line">                   cmp_opcode = get_operand_value(call_func_ea, <span class="number">1</span>)</span><br><span class="line">                   cmp_reg = get_operand_value(call_func_ea, <span class="number">0</span>)</span><br><span class="line">                   <span class="keyword">if</span> cmp_opcode == opcode <span class="keyword">and</span> cmp_reg == reg: <span class="comment"># find!</span></span><br><span class="line">                       l = decode_insn(insn, call_func_ea)</span><br><span class="line">                       call_func_ea += l <span class="comment"># jmp cmp</span></span><br><span class="line">                       <span class="keyword">break</span></span><br><span class="line">               length = decode_insn(insn, call_func_ea) <span class="comment"># 获取指令长度</span></span><br><span class="line">               call_func_ea += length</span><br><span class="line">            <span class="comment"># cmp -&gt; jnz -&gt; popa -&gt; popf -&gt; valid code</span></span><br><span class="line">            <span class="comment">#print(hex(opcode))</span></span><br><span class="line">            l = decode_insn(insn, call_func_ea)</span><br><span class="line">            call_func_ea += l <span class="comment"># jmp jnz</span></span><br><span class="line">            l = decode_insn(insn, call_func_ea)</span><br><span class="line">            call_func_ea += l <span class="comment"># jmp popa</span></span><br><span class="line">            l = decode_insn(insn, call_func_ea)</span><br><span class="line">            call_func_ea += l <span class="comment"># jmp popf</span></span><br><span class="line">            <span class="comment"># jump to valid code</span></span><br><span class="line">            s = GetDisasm(call_func_ea)</span><br><span class="line">            <span class="keyword">if</span> s == <span class="string">&#x27;pushf&#x27;</span>:</span><br><span class="line">                <span class="comment"># retn</span></span><br><span class="line">                b += <span class="string">b&#x27;\xC3&#x27;</span></span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">                s = GetDisasm(call_func_ea)</span><br><span class="line">                <span class="comment">#print(s)</span></span><br><span class="line">                <span class="keyword">if</span> s[:<span class="number">3</span>] == <span class="string">&#x27;jmp&#x27;</span>:</span><br><span class="line">                   <span class="comment"># retn</span></span><br><span class="line">                   <span class="keyword">break</span></span><br><span class="line">                <span class="comment"># get valid code</span></span><br><span class="line">                length = decode_insn(insn, call_func_ea) <span class="comment"># 获取指令长度</span></span><br><span class="line">                <span class="comment">#print(length,hex(call_func_ea))</span></span><br><span class="line">                disas = dis(get_bytes(call_func_ea, length), call_func_ea)</span><br><span class="line">                b += <span class="built_in">bytes</span>(ks.asm(disas, call_func_ea)[<span class="number">0</span>])</span><br><span class="line">                call_func_ea += length</span><br><span class="line">        <span class="keyword">else</span>: <span class="comment"># 正常代码</span></span><br><span class="line">            length = decode_insn(insn, func_ea) <span class="comment"># 获取指令长度</span></span><br><span class="line">            disas = dis(get_bytes(func_ea, length), func_ea)</span><br><span class="line">            b += <span class="built_in">bytes</span>(ks.asm(disas, func_ea)[<span class="number">0</span>])</span><br><span class="line">            func_ea += length</span><br><span class="line">            <span class="keyword">if</span> s == <span class="string">&#x27;retn&#x27;</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">valic_code_addr = <span class="number">0x8C100</span></span><br><span class="line">get_valid_code(<span class="number">0x48F4</span>)</span><br><span class="line">get_valid_code(<span class="number">0x48C8</span>)</span><br><span class="line">get_valid_code(<span class="number">0x3FBF</span>)</span><br><span class="line">get_valid_code(<span class="number">0x3F1B</span>)</span><br><span class="line">get_valid_code(<span class="number">0x4148</span>)</span><br><span class="line">get_valid_code(<span class="number">0x750A9</span>)</span><br><span class="line">get_valid_code(<span class="number">0x33EC</span>)</span><br><span class="line">patch_bytes(valic_code_addr, <span class="built_in">bytes</span>(b))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;done!&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>具体可以参考<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Wt4y137qG?spm_id_from=333.999.0.0&vd_source=a6399ceb541c152f6fdd163573a7e845">【CTF&amp;WP】2022强网杯Reverse——find_basic_哔哩哔哩_bilibili</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.xl-bit.cn/index.php/archives/839/">2022–第六届“强网杯”全国网络安全挑战赛—WriteUp - Bit’s Blog (xl-bit.cn)</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2022QWB Re find basic</div>
+      <div>http://example.com/2022/10/09/2022QWB-Re-find-basic/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Eutop1a</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>October 9, 2022</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/09/2022%E7%BE%8E%E5%9B%A2CTF-RE-small/" title="美团CTF RE small">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">美团CTF RE small</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"YI3fe42GN0DkmGFOTVuFtTIo-gzGzoHsz","appKey":"ssTUMONqn6xV0dSTdhIiP6fV","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;Table of Contents</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
